@@ -1,0 +1,151 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
+
+<dom-module id="consulta-dispersiones-component">
+  <template>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <style>
+      :host {
+        display: block;
+      }
+
+      .col-8 {
+        padding: 0;
+      }
+      
+      .container {
+        margin-top: 25px;
+      }
+
+      .detalle {
+        margin-top: 10px;
+      }
+
+      h2 {
+        color: #072146;
+        font-weight: bold;
+      }
+
+      .btn-primary {
+        background-color: #072146;
+        border-color: #072146;
+      }
+      
+      .btn-primary:hover {
+        background-color: #072146c9;
+        border-color: #072146c9;
+      }
+    </style>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-8"><h2>{{empresa.emp_nombre}}</h2></div>
+        <div class="col">
+          <!-- <button type="button" on-click="obtenerClientes" class="btn btn-primary">Nueva dispersión</button> -->
+          <a class="btn btn-primary" href="./creaDispersion.html" role="button">Crear dispersión</a>
+        </div>
+        <div class="col">
+          <!-- <button type="button" on-click="insertarCliente" class="btn btn-outline-dark">Cancelar dispersión</button> -->
+          <a class="btn btn-danger" href="./cancelaDispersion.html" role="button">Cancelar dispersión</a>
+        </div>
+      </div>
+      <div class="row detalle">
+        <h3>Detalle de dispersiones</h2>
+      </div>
+      <div class="row">
+        <table class="table table-striped">
+          <tbody>
+            <tr>
+              <th>Lote</th>
+              <th>Fecha de envio</th>
+              <th>Numero de operaciones</th>
+              <th>Importe total</th>
+              <th>Estatus</th>
+            </tr>
+            <template is="dom-repeat" items="{{dispersiones}}">
+              <tr>
+                <td>
+                  [[item.dsi_lote]]
+                </td>
+                <td>
+                  [[item.dsi_fecha]]
+                </td>
+                <td>
+                  [[item.dsi_num_oper]]
+                </td>
+                <td>
+                  $ [[item.dsi_imp_lote]]
+                </td>
+                <td>
+                  [[item.dsi_status]]
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class ConsultaDispersiones extends Polymer.Element {
+      static get is() { return 'consulta-dispersiones-component'; }
+      static get properties() {
+        return {
+          empresa: {
+            type: Object,
+            notify: true
+          },
+          dispersiones: {
+            type: Array,
+            notify: true
+          }
+        };
+      }
+
+      ready() {
+        super.ready();
+        let emp_numero = window.sessionStorage.emp_numero;
+        let id_emp = window.sessionStorage.id_emp;
+        this.obtenerEmpresa(emp_numero);
+        this.obtenerDispersiones(id_emp);
+      }
+
+      obtenerEmpresa(emp_numero) {
+        let request = new XMLHttpRequest();
+        request.open("GET", `http://localhost:3000/api/empresas/${emp_numero}`, false);
+        request.send();
+        let response = JSON.parse(request.responseText);
+        this.empresa = response.empresa;
+      }
+
+      obtenerDispersiones(id_emp) {
+        let request = new XMLHttpRequest();
+        request.open("GET", `http://localhost:3000/api/dispersiones/empresa/${id_emp}`, false);
+        request.send();
+        let response = JSON.parse(request.responseText);
+        this.dispersiones = this.formatearDispersiones(response.dispersiones);
+      }
+
+      formatearDispersiones(dispersiones) {
+
+        return dispersiones.map(dispersion => {
+          return ({
+            dsi_lote: dispersion.dsi_lote,
+            dsi_fecha: new Date(dispersion.dsi_fecha).toLocaleDateString(),
+            dsi_num_oper: dispersion.dsi_num_oper,
+            dsi_imp_lote: dispersion.dsi_imp_lote,
+            dsi_status: dispersion.dsi_status.sts_descripcion
+          });
+        });
+      }
+     }
+
+    window.customElements.define(ConsultaDispersiones.is, ConsultaDispersiones);
+  </script>
+</dom-module>

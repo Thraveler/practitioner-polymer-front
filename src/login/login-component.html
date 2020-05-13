@@ -1,0 +1,145 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="login-component">
+  <template>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <style>
+      :host {
+        display: block;
+      }
+      h2 {
+        color: #072146;
+      }
+      #login-container {
+        width: 500px;
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 20px auto;
+        border: #072146 solid 3px;
+        border-radius: 25px;
+        padding-top: 25px;
+      }
+
+      #login-container input{
+        width: 90%;
+        margin: 15px 0;
+        color: #072146;
+        border-radius: 25px;
+        border-style: solid;
+        padding: 10px;
+      }
+
+      #login-container button {
+        background-color: #072146;
+        color: white;
+        font-weight: bold;
+        border-style: none;
+        border-radius: 10px;
+        width: 150px;
+        padding: 5px 0;
+      }
+
+      #login-container button:hover {
+        color: #072146;
+        background-color: rgba(0, 0, 0, .1);
+        cursor: pointer;
+      }
+
+      #login-container p {
+        margin-top: 25px;
+      }
+
+      a:hover {
+        text-decoration: none;
+        color: #072146;
+      }
+
+      input::-webkit-outer-spin-button,
+      input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      
+      input[type=number] {
+        -moz-appearance: textfield;
+      }
+    </style>
+
+    <div id="login-container">
+      <h2>Bienvenido a Flexinomina de BBVA</h2>
+      <input id="emp_numero" type="number" max="4299999999"  placeholder="Ingresa número de empresa"/>
+      <input id="emp_pass" type="password" placeholder="Ingresa contraseña"/>
+      <button on-click="iniciarSesion">Iniciar Sesión</button>
+      <p>¿No tienes cuenta? ¡Haz click <a href="./signup.html">aquí!</a></p>
+    </div>
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class LoginComponent extends Polymer.Element {
+
+      static get is() { return 'login-component'; }
+      static get properties() { 
+        return {
+          emp_numero: {
+            type: String,
+            value: '',
+            notify: true,
+            reflectToAttribute: true
+          },
+          emp_pass: {
+            type: String,
+            value: ''
+          },
+          inputNoEmp: {
+            type: Object,
+            notify: true,
+            reflectToAttribute: true
+          }
+        }; 
+      }
+
+      ready() {
+        super.ready();
+        this.inputNoEmp = document.getElementById('emp_numero');
+      }
+
+      async iniciarSesion() {
+        let emp_numero = this.shadowRoot.getElementById('emp_numero').value;
+        let emp_pass = this.shadowRoot.getElementById('emp_pass').value;
+
+        try {
+          let r = await fetch('http://localhost:3000/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              emp_numero: emp_numero,
+              emp_pass: emp_pass
+            })
+          });
+            let response = await r.json();
+            
+            if(response.estatus == 200) {
+              window.sessionStorage.emp_numero = response.empresa.emp_numero;
+              window.sessionStorage.id_emp = response.empresa.id_emp;
+              window.location = "./consultaDispersiones.html";
+            } else {
+              alert(response.mensaje);
+            }
+
+          } catch(e) {
+            console.log(e);
+          }
+        }
+    }
+
+    window.customElements.define(LoginComponent.is, LoginComponent);
+  </script>
+</dom-module>

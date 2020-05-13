@@ -1,0 +1,115 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="signup-component">
+  <template>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <style>
+      :host {
+        display: block;
+      }
+      h2 {
+        color: #072146;
+      }
+      #signup-container {
+        width: 500px;
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+        /* justify-content: space-around; */
+        align-items: center;
+        margin: 20px auto;
+        border: #072146 solid 3px;
+        border-radius: 25px;
+        padding-top: 25px;
+      }
+
+      #signup-container input{
+        width: 90%;
+        margin: 15px 0;
+        color: #072146;
+        border-radius: 25px;
+        border-style: solid;
+        padding: 10px;
+      }
+
+      #signup-container button {
+        background-color: #072146;
+        color: white;
+        font-weight: bold;
+        border-style: none;
+        border-radius: 10px;
+        width: 150px;
+        /* height: 25px; */
+        padding: 5px 0;
+      }
+
+      #signup-container button:hover {
+        color: #072146;
+        background-color: rgba(0, 0, 0, .1);
+        cursor: pointer;
+      }
+
+      #signup-container p {
+        margin-top: 25px;
+      }
+
+      a:hover {
+        text-decoration: none;
+        color: #072146;
+      }
+    </style>
+
+    <div id="signup-container">
+      <h2>Únete a Flexinomina de BBVA</h2>
+      <input id="emp_nombre" type="text" placeholder="Ingresa nombre de la empresa"/>
+      <input id="emp_pass" type="password" placeholder="Ingresa contraseña"/>
+      <button on-click="registrarse">Únete</button>
+      <p>¿Ya tienes cuenta? ¡Inicia sesión <a href="./index.html">aquí!</a></p>
+    </div>
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class SignupComponent extends Polymer.Element {
+
+      static get is() { return 'signup-component'; }
+      static get properties() { 
+        return {}; 
+      }
+
+      async registrarse() {
+        let emp_nombre = this.shadowRoot.getElementById('emp_nombre').value;
+        let emp_pass = this.shadowRoot.getElementById('emp_pass').value;
+
+        try {
+          let r = await fetch('http://localhost:3000/auth/signup', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              emp_nombre: emp_nombre.toUpperCase(),
+              emp_pass: emp_pass
+            })
+          });
+            let response = await r.json();
+            
+            if(response.estatus == 201) {
+              alert(response.mensaje);
+              window.location = "./index.html";
+            } else {
+              alert(response.mensaje);
+            }
+
+          } catch(e) {
+            console.log(e);
+          }
+      }
+    }
+
+    window.customElements.define(SignupComponent.is, SignupComponent);
+  </script>
+</dom-module>

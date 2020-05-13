@@ -1,0 +1,157 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
+
+<dom-module id="cancela-dispersion-component">
+  <template>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <style>
+      :host {
+        display: block;
+      }
+
+      #header-container {
+        padding-top: 20px;
+        padding-right: 20px;
+        padding-left: 20px;
+        padding-bottom: 0;
+      }
+
+      #header-container h2 {
+        color: #072146;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+
+      input{
+        width: 90%;
+        margin: 15px 0;
+        color: #072146;
+        border-radius: 25px;
+        border-style: solid;
+        padding: 10px;
+      }
+
+      #dispersion-form-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      button {
+        background-color: #072146;
+        color: white;
+        font-weight: bold;
+        border-style: none;
+        border-radius: 10px;
+        width: 150px;
+        padding: 5px 0;
+      }
+
+      .btn-primary {
+        background-color: #072146;
+        border-color: #072146;
+      }
+
+      .btn-primary:hover {
+        background-color: #072146c9;
+        border-color: #072146c9;
+      }
+
+      input::-webkit-outer-spin-button,
+      input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      
+      input[type=number] {
+        -moz-appearance: textfield;
+      }
+
+      #btn-container {
+        width: 90%;
+        margin: 0 auto 20px auto;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      span {
+        color: red;
+      }
+    </style>
+
+    <div id="header-container">
+      <h2>{{empresa.emp_nombre}}</h2>
+      <h3>Por favor ingresa los siguientes datos para <span>cancelar</span> una dispersión</h3>
+    </div>
+    <div id="dispersion-form-container">
+      <input type="number" name="dsi_lote" id="dsi_lote" placeholder="Numero de lote">
+    </div>
+    <div id="btn-container">
+      <a class="btn btn-secundary" href="./consultaDispersiones.html" role="button">Volver</a>
+      <button class="btn btn-danger" on-click="cancelarDispersion">Cancelar dispersión</button>
+    </div>
+
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class CancelaDispersion extends Polymer.Element {
+      static get is() { return 'cancela-dispersion-component'; }
+      static get properties() {
+        return {
+          empresa: {
+            type: Object,
+            notify: true
+          }
+        }
+      }
+
+      ready() {
+        super.ready();
+        this.obtenerEmpresa();
+      }
+
+      obtenerEmpresa() {
+        let request = new XMLHttpRequest();
+        request.open("GET", "http://localhost:3000/api/empresas/4200000100", false);
+        request.send();
+        let response = JSON.parse(request.responseText);
+        this.empresa = response.empresa;
+      }
+
+      async cancelarDispersion() {
+        let dsi_lote = this.shadowRoot.getElementById('dsi_lote').value;
+
+        try {
+          let r = await fetch(`http://localhost:3000/api/dispersiones/${dsi_lote}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              id_emp: window.sessionStorage.id_emp
+            })
+          });
+ 
+          let response = await r.json();
+          
+          if(response.estatus == 201) {
+            alert(response.mensaje);
+            window.location = "./consultaDispersiones.html";
+          } else {
+            alert(response.mensaje);
+          }
+
+        } catch(e) {
+          console.log(e);
+        }
+      }
+
+     }
+
+    window.customElements.define(CancelaDispersion.is, CancelaDispersion);
+  </script>
+</dom-module>
