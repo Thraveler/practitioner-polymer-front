@@ -84,7 +84,7 @@
       <h3>Por favor ingresa los siguientes datos para <span>cancelar</span> una dispersión</h3>
     </div>
     <div id="dispersion-form-container">
-      <input type="number" name="dsi_lote" id="dsi_lote" placeholder="Numero de lote">
+      <input type="number" name="dsi_lote" id="dsi_lote" placeholder="Numero de lote" onkeypress="[[esNumero]]">
     </div>
     <div id="btn-container">
       <a class="btn btn-secundary" href="./consultaDispersiones.html" role="button">Volver</a>
@@ -111,12 +111,14 @@
 
       ready() {
         super.ready();
-        this.obtenerEmpresa();
+        let emp_numero = window.sessionStorage.emp_numero;
+        let id_emp = window.sessionStorage.id_emp;
+        this.obtenerEmpresa(emp_numero);
       }
 
-      obtenerEmpresa() {
+      obtenerEmpresa(emp_numero) {
         let request = new XMLHttpRequest();
-        request.open("GET", "http://localhost:3000/api/empresas/4200000100", false);
+        request.open("GET", `http://localhost:3000/api/empresas/${emp_numero}`, false);
         request.send();
         let response = JSON.parse(request.responseText);
         this.empresa = response.empresa;
@@ -148,6 +150,13 @@
         } catch(e) {
           console.log(e);
         }
+      }
+
+      esNumero(evt){
+        var charCode = (evt.which) ? evt.which : evt.keyCode
+        if (charCode > 31 && (charCode < 48 || charCode > 57))
+          return false;
+        return true;
       }
 
      }

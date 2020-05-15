@@ -74,7 +74,7 @@
                   [[item.dsi_num_oper]]
                 </td>
                 <td>
-                  $ [[item.dsi_imp_lote]]
+                  [[item.dsi_imp_lote]]
                 </td>
                 <td>
                   [[item.dsi_status]]
@@ -134,12 +134,19 @@
 
       formatearDispersiones(dispersiones) {
 
+        const formatter = new Intl.NumberFormat('es-MX', {
+          style: 'currency',
+          currency: 'MXN',
+          minimumFractionDigits: 2
+        });
+
+
         return dispersiones.map(dispersion => {
           return ({
             dsi_lote: dispersion.dsi_lote,
             dsi_fecha: new Date(dispersion.dsi_fecha).toLocaleDateString(),
             dsi_num_oper: dispersion.dsi_num_oper,
-            dsi_imp_lote: dispersion.dsi_imp_lote,
+            dsi_imp_lote: formatter.format(dispersion.dsi_imp_lote),
             dsi_status: dispersion.dsi_status.sts_descripcion
           });
         });
