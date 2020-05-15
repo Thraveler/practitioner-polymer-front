@@ -95,18 +95,14 @@
           emp_pass: {
             type: String,
             value: ''
-          },
-          inputNoEmp: {
-            type: Object,
-            notify: true,
-            reflectToAttribute: true
           }
         }; 
       }
 
       ready() {
         super.ready();
-        this.inputNoEmp = document.getElementById('emp_numero');
+        window.sessionStorage.emp_numero = '';
+        window.sessionStorage.id_emp = '';
       }
 
       async iniciarSesion() {
